@@ -21,7 +21,7 @@ OPTIONS
   -X, --escape char          Use to escape quoted characters within a field. Default is doubling.
   -N, --namespace prefix     Prefix identifiers with prefix.
   -b, --bin strip|raw|octal  Binary export mode: strip binaries, export as-is, or output \ooo style octal data.
-  -t  --trim-cr-lf           Trim CR and LF characters (ASCII value 10 and 13) in text-like (default none)
+  -t  --trim-cr-lf           Trim CR and LF characters (ASCII values 10 and 13) in text-like fields(default none)
 
 NOTES 
 
