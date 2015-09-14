@@ -32,7 +32,7 @@ static char *escapes(char *s);
 
 //#define DONT_ESCAPE_ESCAPE
 static void
-print_col(FILE *outfile, gchar *col_val, int quote_text, int col_type, int bin_len, char *quote_char, char *escape_char, int bin_mode)
+print_col(FILE *outfile, gchar *col_val, int quote_text, int col_type, int bin_len, char *quote_char, char *escape_char, int bin_mode, int trim_cr_lf)
 /* quote_text: Don't quote if 0.
  */
 {
@@ -52,9 +52,11 @@ print_col(FILE *outfile, gchar *col_val, int quote_text, int col_type, int bin_l
 					break;
 				if (!bin_len--)
 					break;
-			} else /* use \0 sentry */
-				if (!*col_val)
+			} else { /* use \0 sentry */
+				if (!*col_val) {
 					break;
+				}
+			}
 
 			if (quote_len && !strncmp(col_val, quote_char, quote_len)) {
 				fprintf(outfile, "%s%s", escape_char, quote_char);
@@ -64,10 +66,15 @@ print_col(FILE *outfile, gchar *col_val, int quote_text, int col_type, int bin_l
 				fprintf(outfile, "%s%s", escape_char, escape_char);
 				col_val += orig_escape_len;
 #endif
-			} else if (is_binary_type(col_type) && *col_val <= 0 && bin_mode == MDB_BINEXPORT_OCTAL)
-				fprintf(outfile, "\\%03o", *(unsigned char*)col_val++);
-			else
+			} else if (is_binary_type(col_type) && *col_val <= 0 && bin_mode == MDB_BINEXPORT_OCTAL) {
+				fprintf(outfile, "\\%03o", *(unsigned char *) col_val++);
+			} else if (trim_cr_lf && (*col_val == '\n' || *col_val == '\r')) {
+				// trim \r and \n
+				col_val++;
+			}
+			else {
 				putc(*col_val++, outfile);
+			}
 		}
 		fputs(quote_char, outfile);
 	} else
@@ -89,6 +96,7 @@ main(int argc, char **argv)
 	char *escape_char = NULL;
 	int header_row = 1;
 	int quote_text = 1;
+	int trim_cr_lf = 0;
 	char *insert_dialect = NULL;
 	char *date_fmt = NULL;
 	char *namespace = NULL;
@@ -108,6 +116,7 @@ main(int argc, char **argv)
 		{ "escape", 'X', 0, G_OPTION_ARG_STRING, &escape_char, "Use <char> to escape quoted characters within a field. Default is doubling.", "format"},
 		{ "namespace", 'N', 0, G_OPTION_ARG_STRING, &namespace, "Prefix identifiers with namespace", "namespace"},
 		{ "bin", 'b', 0, G_OPTION_ARG_STRING, &str_bin_mode, "Binary export mode", "strip|raw|octal"},
+		{ "trim-cr-lf", 't', 0, G_OPTION_ARG_NONE, &trim_cr_lf, "Trim LF and CR characters", NULL},
 		{ NULL },
 	};
 	GError *error = NULL;
@@ -240,7 +249,8 @@ main(int argc, char **argv)
 					value = bound_values[i];
 					length = bound_lens[i];
 				}
-				print_col(outfile, value, quote_text, col->col_type, length, quote_char, escape_char, bin_mode);
+				print_col(outfile, value, quote_text, col->col_type, length, quote_char, escape_char, bin_mode,
+						  trim_cr_lf);
 				if (col->col_type == MDB_OLE)
 					free(value);
 			}

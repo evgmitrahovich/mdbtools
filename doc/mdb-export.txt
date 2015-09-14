@@ -2,7 +2,7 @@ NAME
   mdb-export - Export data in an MDB database table to CSV format.
 
 SYNOPSIS
-  mdb-export [-H] [-d delim] [-R delim] [[-Q] | [-q char [-X char]]] [-I backend] [-D fmt] [-N prefix] [-b strip|raw|octal] database table
+  mdb-export [-H] [-t] [-d delim] [-R delim] [[-Q] | [-q char [-X char]]] [-I backend] [-D fmt] [-N prefix] [-b strip|raw|octal] database table
   mdb-export -h|--help
 
 DESCRIPTION
@@ -21,6 +21,7 @@ OPTIONS
   -X, --escape char          Use to escape quoted characters within a field. Default is doubling.
   -N, --namespace prefix     Prefix identifiers with prefix.
   -b, --bin strip|raw|octal  Binary export mode: strip binaries, export as-is, or output \ooo style octal data.
+  -t  --trim-cr-lf           Trim CR and LF characters (ASCII value 10 and 13) in text-like (default none)
 
 NOTES 
 
